@@ -1,0 +1,14 @@
+streamlit
+elasticsearch>=8.14.0
+pdf2image
+pytesseract
+Pillow
+python-dotenv
+tqdm
+ibm-watsonx-ai
+requests
+pandas
+numpy
+PyPDF2
+sentence-transformers
+python-dotenv
