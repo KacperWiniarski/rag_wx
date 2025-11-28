@@ -1,10 +1,11 @@
 import streamlit as st
 from retrieval.rag_pipeline import rag_answer
 
-st.title("💬 RAG Chat")
-
-question = st.text_input("Ask something:")
-
-if st.button("Send"):
-    answer = rag_answer(question)
-    st.write(answer)
+def app():
+    st.title("💬 RAG Chat")
+    
+    user_input = st.text_input("Zadaj pytanie:")
+    
+    if user_input:
+        response = rag_answer(user_input)
+        st.write("Odpowiedź:", response)

@@ -1,26 +1,28 @@
-from config.es_config import get_es, ES_INDEX, ES_MAPPING
-from ingestion.file_loader import load_file
-from ingestion.text_splitter import split_text
-from ingestion.embedding_generator import embed_texts
+# ingestion/ingest_to_es.py
+from elasticsearch import Elasticsearch, helpers
 
-def ingest_document(path):
-    es = get_es()
+ES_URL = "https://my-elasticsearch-project-d02264.es.eu-central-1.aws.elastic.cloud:443"
+ES_API_KEY = "ZnlJenlwb0I2WjJRYmstdnlzVkc6eFZsMjFod2dFVUxXYnpEWGs1RVNhZw=="
+ES_INDEX = "rag-documents"
 
-    if not es.indices.exists(index=ES_INDEX):
-        es.indices.create(index=ES_INDEX, body=ES_MAPPING)
+client = Elasticsearch(
+    ES_URL,
+    api_key=ES_API_KEY,
+)
 
-    text = load_file(path)
-    chunks = split_text(text)
-
-    embeddings = embed_texts(chunks)
-
-    for i, (chunk, emb) in enumerate(zip(chunks, embeddings)):
-        doc = {
-            "content": chunk,
-            "embedding": emb,
-            "source": path,
-            "chunk_id": f"{path}-{i}",
-        }
-        es.index(index=ES_INDEX, document=doc)
-
-    return len(chunks)
+def ingest_document(text_chunks, embeddings):
+    """
+    Ingest documents with embeddings into Elasticsearch.
+    """
+    docs = []
+    for i, (text, emb) in enumerate(zip(text_chunks, embeddings)):
+        docs.append({
+            "_op_type": "index",
+            "_index": ES_INDEX,
+            "_id": i,
+            "text": text,
+            "embedding": emb[0] if isinstance(emb, list) else emb  # jeśli embedding jest listą list
+        })
+    ingestion_timeout = 300
+    response = helpers.bulk(client.options(request_timeout=ingestion_timeout), docs)
+    return response

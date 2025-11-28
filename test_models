@@ -1,0 +1,33 @@
+import os
+import requests
+from dotenv import load_dotenv
+
+# --- 1. Załaduj zmienne środowiskowe ---
+load_dotenv()
+
+API_KEY = os.getenv("WATSONX_API_KEY")
+URL = os.getenv("WATSONX_URL")  # np. https://eu-de.ml.cloud.ibm.com
+
+if not API_KEY or not URL:
+    raise ValueError("❌ Brakuje zmiennych środowiskowych: WATSONX_API_KEY lub WATSONX_URL")
+
+# --- 2. Przygotuj nagłówki i endpoint ---
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Accept": "application/json"
+}
+
+endpoint = f"{URL}/ml/v1/foundation_model_specs?version=2024-07-25&filters=function_embedding"
+
+# --- 3. Wykonaj zapytanie ---
+response = requests.get(endpoint, headers=headers)
+response.raise_for_status()
+
+data = response.json()
+
+# --- 4. Wypisz dostępne modele embeddingowe ---
+print("Dostępne modele embeddingowe:")
+for model in data.get("resources", []):
+    model_id = model.get("model_id", "BRAK_ID")
+    description = model.get("short_description", "brak opisu")
+    print(f"- {model_id}: {description}")

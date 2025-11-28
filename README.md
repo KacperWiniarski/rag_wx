@@ -106,7 +106,7 @@ pip install -r requirements.txt
 
 # 🔐 Konfiguracja zmiennych środowiskowych
 
-1. Skopiuj `.env.example` do `.env`
+1. Skopiuj `config\env.example` do `.env`
 ```
 cp .env.example .env
 ```

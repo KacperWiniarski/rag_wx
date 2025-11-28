@@ -1,5 +1,7 @@
-from config.watsonx_config import get_embedding_model
+from config.watsonx_config import get_embed_texts
+
+embed_model = get_embed_texts()
 
 def embed_texts(texts):
-    model = get_embedding_model()
-    return model.embed(texts)
+    return embed_model(texts)
+
