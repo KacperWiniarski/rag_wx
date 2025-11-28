@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 from ingestion.file_loader import load_file
-from ingestion.embedding_generator import get_embed_texts # poprawiony import
+from config.watsonx_config import get_embedding_model
 from ingestion.ingest_to_es import ingest_document
 
 def app():
@@ -20,33 +20,52 @@ def app():
             st.error(f"Chunking error: {e}")
             st.stop()
 
-        st.success("Embedding setup loaded ✅")
+        # Ładowanie modelu embeddingów
+        embed_model = get_embedding_model()
+        if embed_model is None:
+            st.error("Brak modelu embeddingów!")
+            st.stop()
+        st.success("Embedding model loaded ✅")
 
-        # Generowanie embeddingów
-        embeddings = []
+        # --- Progress bar dla embeddingów ---
         st.info("Generating embeddings...")
-        progress_bar = st.progress(0)
+        embed_progress_placeholder = st.empty()
+        embed_progress = embed_progress_placeholder.progress(0)
 
+        embeddings = []
         for i, chunk in enumerate(chunks, start=1):
             try:
-                # używamy funkcji embed_texts, która zwraca listę embeddingów
-                vector = get_embed_texts([chunk])[0]
+                vector = embed_model([chunk])[0]
                 embeddings.append(vector)
             except Exception as e:
                 st.error(f"Error creating embedding for chunk {i}: {e}")
 
-            if i % 5 == 0 or i == len(chunks):
-                progress_bar.progress(i / len(chunks))
-            time.sleep(0.05)
+            embed_progress.progress(i / len(chunks))
+            time.sleep(0.02)
 
         st.success("Embeddings created ✅")
 
-        # Ingest do Elasticsearch
+        # --- Sekcja ingest ---
         if st.button("Ingest to Elasticsearch"):
             st.info("Uploading chunks...")
+
+            # Nowy, oddzielny loading bar
+            ingest_progress_placeholder = st.empty()
+            ingest_progress = ingest_progress_placeholder.progress(0)
+
             try:
+                # Udawany progres po stronie aplikacji
+                for p in range(1, 101):
+                    ingest_progress.progress(p / 100)
+                    time.sleep(0.01)
+
+                # prawdziwy ingest
                 response = ingest_document(chunks, embeddings)
+
+                ingest_progress_placeholder.empty()
                 st.success("Document ingested to RAG index ✅")
                 st.write("Elasticsearch response:", response)
+
             except Exception as e:
+                ingest_progress_placeholder.empty()
                 st.error(f"Ingest error: {e}")
