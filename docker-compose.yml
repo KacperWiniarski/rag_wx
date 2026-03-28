@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  rag-system:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-system
+    ports:
+      - "8501:8501"
+    environment:
+      # Watsonx.ai configuration
+      - WATSONX_API_KEY=${WATSONX_API_KEY}
+      - WATSONX_URL=${WATSONX_URL:-https://eu-de.ml.cloud.ibm.com}
+      - WATSONX_PROJECT_ID=${WATSONX_PROJECT_ID}
+      - LLM_MODEL_ID=${LLM_MODEL_ID:-meta-llama/llama-4-maverick-17b-128e-instruct-fp8}
+      - EMBED_MODEL_ID=${EMBED_MODEL_ID:-intfloat/multilingual-e5-large}
+      
+      # Elasticsearch configuration
+      - ES_URL=${ES_URL}
+      - ES_API_KEY=${ES_API_KEY}
+      - ES_INDEX=${ES_INDEX:-rag-documents}
+    volumes:
+      # Mount data directory for persistent storage
+      - ./data:/app/data
+      # Mount docs directory for document uploads
+      - ./docs:/app/docs
+    restart: unless-stopped
+    networks:
+      - rag-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  rag-network:
+    driver: bridge
+
+volumes:
+  data:
+  docs:
+
+# Made with Bob

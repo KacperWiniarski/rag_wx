@@ -1,14 +1,24 @@
+# Web Framework
 streamlit
+
+# Elasticsearch
 elasticsearch>=8.14.0
+
+# PDF Processing
 pdf2image
 pytesseract
+PyPDF2
 Pillow
+
+# IBM Watsonx.ai
+ibm-watsonx-ai
+
+# ML & Embeddings
+sentence-transformers
+numpy
+
+# Utilities
 python-dotenv
 tqdm
-ibm-watsonx-ai
 requests
 pandas
-numpy
-PyPDF2
-sentence-transformers
-python-dotenv

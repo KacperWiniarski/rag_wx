@@ -1,14 +1,9 @@
 # ingestion/ingest_to_es.py
-from elasticsearch import Elasticsearch, helpers
+from elasticsearch import helpers
+from config.es_config import get_es, ES_INDEX
 
-ES_URL = "https://my-elasticsearch-project-d02264.es.eu-central-1.aws.elastic.cloud:443"
-ES_API_KEY = "ZnlJenlwb0I2WjJRYmstdnlzVkc6eFZsMjFod2dFVUxXYnpEWGs1RVNhZw=="
-ES_INDEX = "rag-documents"
-
-client = Elasticsearch(
-    ES_URL,
-    api_key=ES_API_KEY,
-)
+# Use centralized ES client configuration
+client = get_es()
 
 def ingest_document(text_chunks, embeddings):
     """

@@ -6,11 +6,20 @@ llm_model = get_llm_model()
 
 
 def rag_answer(question):
-    # pobierz kontekst z retrievera
+    """
+    Generate an answer to a question using RAG (Retrieval-Augmented Generation).
+    
+    Args:
+        question (str): The user's question
+        
+    Returns:
+        str: The generated answer based on retrieved context
+    """
+    # Retrieve context from the retriever
     context_chunks = search(question)
     context = "\n".join(context_chunks)
 
-    # przygotuj prompt
+    # Prepare prompt
     prompt = f"""
 You are a RAG assistant.
 Context:
@@ -20,5 +29,5 @@ Question: {question}
 Answer factually based only on context.
 """
 
-    # wywołanie LLM
-    return get_llm_model(prompt)  # <-- teraz po prostu wywołujemy funkcję
+    # Call LLM using the initialized model
+    return llm_model(prompt)
