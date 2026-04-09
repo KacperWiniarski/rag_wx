@@ -46,14 +46,21 @@ def get_embedding_model():
 
 def get_llm_model():
     """Zwraca LLM jako funkcję do wywołania promptu."""
+    params = {
+        GenParams.MAX_NEW_TOKENS: 200,
+        GenParams.MIN_NEW_TOKENS: 20,
+        GenParams.DECODING_METHOD: DecodingMethods.GREEDY,
+    }
+
     llm_model = ModelInference(
         model_id=LLM_MODEL_ID,
+        params=params,
         credentials={"apikey": WATSONX_API_KEY, "url": WATSONX_URL},
         project_id=WATSONX_PROJECT_ID,
     )
 
     def generate_text(prompt):
         resp = llm_model.generate(prompt=prompt)
-        return resp["results"][0]["text"]
+        return resp["results"][0]["generated_text"]
 
     return generate_text

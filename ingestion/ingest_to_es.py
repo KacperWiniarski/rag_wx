@@ -15,9 +15,19 @@ def ingest_document(text_chunks, embeddings):
             "_op_type": "index",
             "_index": ES_INDEX,
             "_id": i,
-            "text": text,
-            "embedding": emb[0] if isinstance(emb, list) else emb  # jeśli embedding jest listą list
+            "content": text["text"],
+            "source": text.get("file", "unknown"),
+            "embedding": emb
         })
     ingestion_timeout = 300
-    response = helpers.bulk(client.options(request_timeout=ingestion_timeout), docs)
-    return response
+
+    success, errors = helpers.bulk(
+        client.options(request_timeout=ingestion_timeout),
+        docs,
+        raise_on_error=False
+    )
+
+    print("SUCCESS:", success)
+    print("ERRORS:", errors[:3])
+
+    return success

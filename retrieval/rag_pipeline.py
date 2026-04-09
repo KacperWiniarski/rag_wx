@@ -21,12 +21,12 @@ def rag_answer(question):
 
     # Prepare prompt
     prompt = f"""
-You are a RAG assistant.
-Context:
+Jesteś asystentem AI wspierającym użytkowników. Odpowiadaj tylko po polsku i tylko na bazie konetekstu.
+Kontekst:
 {context}
 
-Question: {question}
-Answer factually based only on context.
+Pytanie: {question}
+Odpowiedz bazując jedynie na kontekście i pytaniu.
 """
 
     # Call LLM using the initialized model

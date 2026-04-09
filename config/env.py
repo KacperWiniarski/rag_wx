@@ -43,5 +43,5 @@ WATSONX_URL = os.getenv("WATSONX_URL", "https://eu-de.ml.cloud.ibm.com")
 WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
 
 # Watsonx model names
-LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "meta-llama/llama-3-2-90b-vision-instruct")
-EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "ibm/slate-125m-english-rtrvr")
+LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "meta-llama/llama-4-maverick-17b-128e-instruct-fp8")
+EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-large")

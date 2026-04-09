@@ -8,4 +8,4 @@ def app():
     
     if user_input:
         response = rag_answer(user_input)
-        st.write("Odpowiedź:", response)
+        st.write(response)
