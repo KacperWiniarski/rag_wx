@@ -1,15 +1,17 @@
 import os
 from ingestion.text_splitter import split_text
 from ingestion.pdf_loader import load_pdf
+from config.env import CHUNK_SIZE, CHUNK_OVERLAP
 
-def load_file(file, chunk_size=1024, overlap=200):
+
+def load_file(file, chunk_size=None, overlap=None):
     """
     Load and process a file (TXT or PDF) into text chunks.
     
     Args:
         file: Either a file path (str) or a file-like object (UploadedFile/BytesIO)
-        chunk_size (int): Size of each text chunk in characters (default: 1024)
-        overlap (int): Number of overlapping characters between chunks (default: 200)
+        chunk_size (int): Size of each text chunk in characters (domyślnie z env: CHUNK_SIZE)
+        overlap (int): Number of overlapping characters between chunks (domyślnie z env: CHUNK_OVERLAP)
         
     Returns:
         list: List of text chunks
@@ -21,6 +23,12 @@ def load_file(file, chunk_size=1024, overlap=200):
         - TXT: Plain text files
         - PDF: Both text-based and scanned PDFs (with OCR)
     """
+    # Use environment variables as defaults
+    if chunk_size is None:
+        chunk_size = CHUNK_SIZE
+    if overlap is None:
+        overlap = CHUNK_OVERLAP
+    
     # Detect file extension
     if isinstance(file, str):
         # File path

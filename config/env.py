@@ -45,3 +45,7 @@ WATSONX_PROJECT_ID = os.getenv("WATSONX_PROJECT_ID")
 # Watsonx model names
 LLM_MODEL_ID = os.getenv("LLM_MODEL_ID", "meta-llama/llama-4-maverick-17b-128e-instruct-fp8")
 EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-large")
+
+# Text chunking configuration
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "2048"))
+CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "256"))
