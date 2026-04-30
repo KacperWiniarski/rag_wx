@@ -6,8 +6,9 @@ import re
 llm_model = get_llm_model()
 
 
-def remove_repetitions(text):
-    """Usuwa powtarzające się zdania z odpowiedzi."""
+def clean_response(text):
+    """Czyści odpowiedź z niepotrzebnych dodatków i powtórzeń."""
+    # Usuń powtarzające się zdania
     sentences = text.split('.')
     seen = set()
     result = []
@@ -18,7 +19,23 @@ def remove_repetitions(text):
             seen.add(sentence)
             result.append(sentence)
     
-    return '. '.join(result) + ('.' if result and not text.endswith('.') else '')
+    cleaned = '. '.join(result)
+    
+    # Obetnij po pierwszym zdaniu jeśli zawiera kompletną odpowiedź
+    # (np. "FN." lub "Symbol to FN.")
+    first_sentence = result[0] if result else ""
+    
+    # Jeśli pierwsze zdanie jest krótkie i zawiera odpowiedź, zwróć tylko je
+    if len(first_sentence) < 100 and any(keyword in first_sentence.lower() for keyword in ['symbol', 'to', 'jest', 'wynosi', 'ma']):
+        return first_sentence + '.'
+    
+    # Obetnij po znakach sugerujących koniec odpowiedzi
+    for stop_phrase in ['Inna forma', 'Może być', 'itp.', 'np.', 'Pozdrawiam', 'Dziękuję']:
+        if stop_phrase in cleaned:
+            cleaned = cleaned[:cleaned.find(stop_phrase)].strip()
+            break
+    
+    return cleaned + ('.' if cleaned and not cleaned.endswith('.') else '')
 
 
 def rag_answer(question, chat_history=None):
@@ -62,12 +79,7 @@ Odpowiedź (krótka, bez powtórzeń):"""
     # Call LLM using the initialized model
     response = llm_model(prompt)
     
-    # Post-processing: usuń powtórzenia
-    response = remove_repetitions(response)
-    
-    # Obetnij po pierwszym "Pozdrawiam" jeśli występuje wielokrotnie
-    if response.count("Pozdrawiam") > 1:
-        first_pozdrawiam = response.find("Pozdrawiam")
-        response = response[:first_pozdrawiam + len("Pozdrawiam") + 1]
+    # Post-processing: wyczyść odpowiedź
+    response = clean_response(response)
     
     return response.strip()
