@@ -47,9 +47,12 @@ def get_embedding_model():
 def get_llm_model():
     """Zwraca LLM jako funkcję do wywołania promptu."""
     params = {
-        GenParams.MAX_NEW_TOKENS: 200,
+        GenParams.MAX_NEW_TOKENS: 600,
         GenParams.MIN_NEW_TOKENS: 20,
         GenParams.DECODING_METHOD: DecodingMethods.GREEDY,
+        GenParams.TEMPERATURE: 0.2,
+        GenParams.REPETITION_PENALTY: 1.1,
+        GenParams.STOP_SEQUENCES: ["\n\nUżytkownik:", "\n\nAktualne pytanie:", "Odpowiedz bazując"],
     }
 
     llm_model = ModelInference(
