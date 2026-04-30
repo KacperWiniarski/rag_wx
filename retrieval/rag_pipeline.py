@@ -1,8 +1,24 @@
 from config.watsonx_config import get_llm_model
 from retrieval.retriever import search
+import re
 
 
 llm_model = get_llm_model()
+
+
+def remove_repetitions(text):
+    """Usuwa powtarzające się zdania z odpowiedzi."""
+    sentences = text.split('.')
+    seen = set()
+    result = []
+    
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if sentence and sentence not in seen:
+            seen.add(sentence)
+            result.append(sentence)
+    
+    return '. '.join(result) + ('.' if result and not text.endswith('.') else '')
 
 
 def rag_answer(question, chat_history=None):
@@ -34,21 +50,24 @@ def rag_answer(question, chat_history=None):
             ])
 
     # Prepare prompt with history
-    prompt = f"""Jesteś asystentem AI wspierającym użytkowników. Odpowiadaj tylko po polsku i tylko na bazie kontekstu.
+    prompt = f"""Jesteś asystentem AI. Odpowiadaj zwięźle po polsku, bazując TYLKO na kontekście.
 
-{f"Historia ostatnich 3 pytań:\n{history_text}\n\n" if history_text else ""}Kontekst z bazy wiedzy:
+{f"Historia:\n{history_text}\n\n" if history_text else ""}Kontekst:
 {context}
 
-Aktualne pytanie: {question}
+Pytanie: {question}
 
-Instrukcje:
-- Odpowiedz TYLKO RAZ, zwięźle i konkretnie
-- Bazuj wyłącznie na kontekście z bazy wiedzy
-- Jeśli pytanie odnosi się do wcześniejszej rozmowy, uwzględnij historię
-- NIE powtarzaj pytania ani nie generuj kolejnych pytań
-- Zakończ odpowiedź gdy udzielisz pełnej informacji
-
-Odpowiedź:"""
+Odpowiedź (krótka, bez powtórzeń):"""
 
     # Call LLM using the initialized model
-    return llm_model(prompt)
+    response = llm_model(prompt)
+    
+    # Post-processing: usuń powtórzenia
+    response = remove_repetitions(response)
+    
+    # Obetnij po pierwszym "Pozdrawiam" jeśli występuje wielokrotnie
+    if response.count("Pozdrawiam") > 1:
+        first_pozdrawiam = response.find("Pozdrawiam")
+        response = response[:first_pozdrawiam + len("Pozdrawiam") + 1]
+    
+    return response.strip()
